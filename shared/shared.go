@@ -4,6 +4,8 @@
 
 package shared
 
-func Hello() string {
-	return "Hello World"
+import "fmt"
+
+func Todo(genome, reads string) string {
+	return fmt.Sprintf("Search for reads from %s in the genome in %s", reads, reads)
 }

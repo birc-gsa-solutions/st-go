@@ -4,6 +4,12 @@ You should implement a suffix tree construction algorithm. You can choose to imp
 
 The program should take the same options as in project 1: `st genome.fa reads.fq`. The program should output (almost) the same SAM file. Because a search in a suffix tree is not done from the start to the end of the string the output might be in a different order, but if you sort the output from the previous project and for this program, they should be identical.
 
+The code is set up to build the tool `st` once you provide the details, and then you can install it at the root with
+
+```bash
+> GOBIN=$PWD go install ./...
+```
+
 ## Evaluation
 
 Implement the tool `st` that does exact pattern matching using a suffix tree. Test it to the best of your abilities, and then fill out the report below.
