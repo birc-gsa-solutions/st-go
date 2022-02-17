@@ -3,11 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-
-	// Directories in the root of the repo can be imported
-	// as long as we pretend that they sit relative to the
-	// url birc.au.dk/gsa, like this for the example 'shared':
-	"birc.au.dk/gsa/shared"
 )
 
 func main() {
@@ -17,5 +12,5 @@ func main() {
 	}
 	genome := os.Args[1]
 	reads := os.Args[2]
-	fmt.Println(shared.Todo(genome, reads))
+	fmt.Println(genome, reads)
 }
