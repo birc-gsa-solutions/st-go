@@ -1,9 +1,7 @@
 package gsa
 
 import (
-	"log"
 	"math/rand"
-	"os"
 	"testing"
 	"time"
 
@@ -109,28 +107,12 @@ func Test_NaiveConstruction(t *testing.T) {
 	x := "mississippi"
 	st := testSuffixTree(t, "NaiveST", NaiveST, x)
 	testSearchMississippi(t, "NaiveST", st)
-
-	f, err := os.Create("naive-dot.dot")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	st.ToDot(f)
-	f.Close()
 }
 
 func Test_McCreightConstruction(t *testing.T) {
 	x := "mississippi"
 	st := testSuffixTree(t, "McCreight", McCreight, x)
 	testSearchMississippi(t, "McCreight", st)
-
-	f, err := os.Create("mccreight-dot.dot")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	st.ToDot(f)
-	f.Close()
 }
 
 func Test_STRandomStrings(t *testing.T) {

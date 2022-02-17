@@ -1,8 +1,6 @@
 package gsa
 
 import (
-	"fmt"
-	"io"
 	"strings"
 	"unsafe"
 )
@@ -128,45 +126,6 @@ func (n STNode) LeafIndices(fn func(int)) {
 	}
 }
 
-// ToDot writes the subtree starting at n to w.
-//
-// Parameters:
-//   - alpha: The alphabet that was used to map the original string into
-//     the byte representation stored in the tree. You can get it from the
-//     suffix tree.
-//   - w: the output stream to write the dot representation to.
-func (n STNode) ToDot(alpha *Alphabet, w io.Writer) {
-	switch n.NodeType {
-	case Leaf:
-		v := n.Leaf()
-		fmt.Fprintf(w, "\"%p\" -> \"%p\"[label=\"%s\"]\n",
-			v.Parent, v, v.Revmap(alpha))
-		fmt.Fprintf(w, "\"%p\"[label=%d]\n", v, v.Index)
-
-	case Inner:
-		v := n.Inner()
-
-		if v.Parent == nil {
-			// Root
-			fmt.Fprintf(w, "\"%p\"[label=\"\", shape=circle, style=filled, fillcolor=grey]\n", v)
-		} else {
-			fmt.Fprintf(w, "\"%p\" -> \"%p\"[label=\"%s\"]\n",
-				v.Parent, v, v.Revmap(alpha))
-			fmt.Fprintf(w, "\"%p\"[shape=point]\n", v)
-		}
-
-		if v.SuffixLink != nil {
-			fmt.Fprintf(w, `"%p" -> "%p"[style=dotted, color=red];`, v, v.SuffixLink)
-		}
-
-		for _, child := range v.Children {
-			if !child.IsNil() {
-				child.ToDot(alpha, w)
-			}
-		}
-	}
-}
-
 func (n *InnerNode) addChild(child STNode) {
 	n.Children[child.Shared().EdgeLabel[0]] = child
 	child.Shared().Parent = n
@@ -203,13 +162,6 @@ func (st *SuffixTree) breakEdge(n STNode, depth, leafidx int, y []byte) STNode {
 	newNode.Inner().addChild(n)
 
 	return newLeaf
-}
-
-// ToDot writes a dot representation of the tree to the output writer w.
-func (st *SuffixTree) ToDot(w io.Writer) {
-	fmt.Fprintln(w, `digraph { rankdir="LR" `)
-	st.Root.ToDot(st.Alpha, w)
-	fmt.Fprintln(w, "}")
 }
 
 // Search maps visitor through all the leaves in the subtree found by a search.
@@ -380,45 +332,3 @@ func McCreight(x string) *SuffixTree {
 
 	return &st
 }
-
-// SECTION Generating other arrays
-
-// ComputeSuffixAndLcpArray constructs a suffix array and longest common prefix
-// array from a suffix tree.
-func (st *SuffixTree) ComputeSuffixAndLcpArray() (sa, lcp []int32) {
-	sa = make([]int32, len(st.String))
-	lcp = make([]int32, len(st.String))
-	i := 0
-
-	var traverse func(n STNode, left, depth int32)
-	traverse = func(n STNode, left, depth int32) {
-		switch n.NodeType {
-		case Leaf:
-			sa[i] = int32(n.Leaf().Index)
-			lcp[i] = left
-			i++
-
-		case Inner:
-			for _, child := range n.Inner().Children {
-				if child.IsNil() {
-					continue
-				}
-
-				traverse(child, left, depth+int32(len(child.Shared().EdgeLabel)))
-				left = depth // The remaining children should use depth
-			}
-		}
-	}
-
-	traverse(st.Root, 0, 0)
-
-	return sa, lcp
-}
-
-// StSaConstruction constructs a suffix array from a suffix tree.
-func StSaConstruction(x string) []int32 {
-	sa, _ := McCreight(x).ComputeSuffixAndLcpArray()
-	return sa
-}
-
-// !SECTION
